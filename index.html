@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kuesioner EVKLA 2024-2025</title>
+    <title>Kuesioner Laporan Desa</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         input[type="radio"] { transform: scale(1.2); cursor: pointer; }
@@ -41,25 +41,21 @@
 
     <div class="max-w-2xl mx-auto mt-6 px-4">
         <div class="bg-white rounded-2xl shadow-xl overflow-hidden p-6">
-            
-            <div class="flex justify-center mb-4">
-                <img src="https://drive.google.com/uc?export=view&id=1PMoOLO7L08bOiUt_1deXsROtLY1UhQ_x" 
-                     alt="Logo" 
-                     class="h-24 w-auto object-contain">
-            </div>
-
-            <h1 class="text-2xl font-bold text-center text-blue-700 mb-6">Kuesioner Evaluasi Mandiri Kabupaten Layak Anak 2024-2025</h1>
-            
+            <h1 class="text-2xl font-bold text-center text-blue-700 mb-6">Kuesioner Evaluasi Mandiri Kabupaten Layak Anak</h1>
             <form id="surveyForm" class="space-y-6">
                 
                 <div class="grid grid-cols-2 gap-4 bg-blue-50 p-4 rounded-xl">
                     <div>
                         <label class="block font-semibold text-sm">Kecamatan</label>
-                        <select id="kecamatan" class="w-full p-2 border rounded mt-1" required><option value="">Memuat...</option></select>
+                        <select id="kecamatan" class="w-full p-2 border rounded mt-1" required>
+                            <option value="">Memuat...</option>
+                        </select>
                     </div>
                     <div>
                         <label class="block font-semibold text-sm">Desa</label>
-                        <select id="desa" class="w-full p-2 border rounded mt-1" required disabled><option value="">Pilih Kecamatan</option></select>
+                        <select id="desa" class="w-full p-2 border rounded mt-1" required disabled>
+                            <option value="">Pilih Kecamatan</option>
+                        </select>
                     </div>
                 </div>
 
@@ -73,7 +69,7 @@
     </div>
 
     <script>
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbwoxMt8LRiATbsSofJLDWFwR4HVlF8rhxxVPaCh_W94I-aVsji0OJx7dVP4JuKsiCGMWA/exec';
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbwoxMt8LRiATbsSofJLDWFwR4HVlF8rhxxVPaCh_W94I-aVsji0OJx7dVP4JuKsiCGMWA/exec'; // URL Web App Anda
         
         const daftarPertanyaan = [
             "Apakah desa memiliki peraturan desa tentang pemenuhan hak dan perlindungan khusus anak ??",
@@ -94,6 +90,7 @@
             "Apakah desa melakukan upaya untuk pendataan dan pencegahan pekerja anak?"
         ];
 
+        // Daftar Link Contoh untuk pertanyaan spesifik
         const links = {
             1: "https://drive.google.com/file/d/1A2B3C4D5E6F/preview",
             2: "https://drive.google.com/file/d/1G7H8I9J0K1L/preview",
@@ -108,6 +105,7 @@
         const container = document.getElementById('questions-container');
         let databaseWilayah = {};
 
+        // Generate Pertanyaan
         daftarPertanyaan.forEach((tanya, i) => {
             let n = i + 1;
             let htmlLink = "";
@@ -120,8 +118,14 @@
                     <p class="font-medium text-gray-800">${n}. ${tanya}</p>
                     ${htmlLink}
                     <div class="flex gap-8 mb-2 mt-3">
-                        <label class="flex items-center space-x-2"><input type="radio" name="p${n}" value="Ya" onclick="toggleUpload(${n}, true)" required> <span>Ya</span></label>
-                        <label class="flex items-center space-x-2"><input type="radio" name="p${n}" value="Tidak" onclick="toggleUpload(${n}, false)" required> <span>Tidak</span></label>
+                        <label class="flex items-center space-x-2">
+                            <input type="radio" name="p${n}" value="Ya" onclick="toggleUpload(${n}, true)" required> 
+                            <span>Ya</span>
+                        </label>
+                        <label class="flex items-center space-x-2">
+                            <input type="radio" name="p${n}" value="Tidak" onclick="toggleUpload(${n}, false)" required> 
+                            <span>Tidak</span>
+                        </label>
                     </div>
                     <div id="u-${n}" style="display:none;" class="mt-3 p-3 bg-white border rounded">
                         <p class="text-[10px] font-bold text-blue-600 mb-1 uppercase">Upload Bukti (Max 1MB)</p>
@@ -134,6 +138,7 @@
             document.getElementById('previewFrame').src = url;
             document.getElementById('modalOverlay').style.display = 'flex';
         }
+
         function closePreview() {
             document.getElementById('modalOverlay').style.display = 'none';
             document.getElementById('previewFrame').src = "";
@@ -144,6 +149,7 @@
             if(!show) document.getElementById(`f${id}`).value = "";
         }
 
+        // Fetch Data Wilayah
         fetch(scriptURL).then(res => res.json()).then(data => {
             databaseWilayah = data;
             const s = document.getElementById('kecamatan');
@@ -159,22 +165,29 @@
             d.disabled = list.length === 0;
         };
 
+        // Handle Submit
         document.getElementById('surveyForm').onsubmit = async (e) => {
             e.preventDefault();
             const btn = document.getElementById('btnSubmit');
-            btn.disabled = true; btn.innerText = "Sedang Mengirim...";
+            btn.disabled = true; 
+            btn.innerText = "Sedang Mengirim...";
 
-            const dataObj = { kecamatan: document.getElementById('kecamatan').value, desa: document.getElementById('desa').value };
+            const dataObj = { 
+                kecamatan: document.getElementById('kecamatan').value, 
+                desa: document.getElementById('desa').value 
+            };
             
             for(let i=1; i<=16; i++) {
                 const val = document.querySelector(`input[name="p${i}"]:checked`).value;
                 dataObj['p'+i] = val;
                 const f = document.getElementById('f'+i);
+                
                 if(val === "Ya" && f.files.length > 0) {
                     const file = f.files[0];
-                    if (file.size > 1024 * 1024) {
+                    if (file.size > 1024 * 1024) { // Validasi 1MB
                         alert(`File nomor ${i} terlalu besar (Max 1MB).`);
-                        btn.disabled = false; btn.innerText = "Kirim Laporan";
+                        btn.disabled = false; 
+                        btn.innerText = "Kirim Laporan";
                         return;
                     }
                     const base64 = await new Promise(r => {
@@ -187,8 +200,15 @@
             }
 
             fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(dataObj) })
-            .then(() => { alert('Berhasil Terkirim!'); location.reload(); })
-            .catch(() => { alert('Gagal!'); btn.disabled = false; btn.innerText = "Kirim Laporan"; });
+            .then(() => { 
+                alert('Berhasil Terkirim!'); 
+                location.reload(); 
+            })
+            .catch(() => { 
+                alert('Gagal!'); 
+                btn.disabled = false; 
+                btn.innerText = "Kirim Laporan";
+            });
         };
     </script>
 </body>
