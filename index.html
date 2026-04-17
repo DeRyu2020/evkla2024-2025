@@ -73,8 +73,7 @@
     </div>
 
     <script>
-        // PASTIKAN URL INI SESUAI DENGAN URL DEPLOY TERBARU ANDA
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbwUyQIguooSJNqV5zjXVm6kBrv7aDa4jYENCte00WNvpP0MmG_TkTbBYYfNlxWWseNz/exec';
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbyMYRkGQVF-bs6bA4-3U2Jmn3qOyj1G5YiqzFXiQYJrxJI3BQUHV6MhwCps2ypZR0mWAw/exec';
         
         const daftarPertanyaan = [
             "Apakah desa memiliki peraturan desa tentang pemenuhan hak dan perlindungan khusus anak ??",
@@ -155,10 +154,9 @@
             if(!show) document.getElementById(`f${id}`).value = "";
         }
 
-        // Fetch Data Awal
         fetch(scriptURL + '?action=getInitialData').then(res => res.json()).then(data => {
             databaseWilayah = data.wilayah;
-            dataSudahIsi = data.sudahIsi;
+            dataSudahIsi = data.sudahIsi; // Berisi format "Kecamatan|Desa"
             const s = document.getElementById('kecamatan');
             s.innerHTML = '<option value="">-- Pilih Kecamatan --</option>';
             Object.keys(databaseWilayah).forEach(k => s.innerHTML += `<option value="${k}">${k}</option>`);
@@ -166,23 +164,27 @@
 
         document.getElementById('kecamatan').onchange = function() {
             const d = document.getElementById('desa');
-            const list = databaseWilayah[this.value] || [];
+            const kecVal = this.value;
+            const list = databaseWilayah[kecVal] || [];
             d.innerHTML = '<option value="">-- Pilih Desa --</option>';
             list.forEach(item => {
-                const status = dataSudahIsi.includes(item) ? "✅ " : "❌ ";
+                // PENGECEKAN CEKLIS BERDASARKAN KECAMATAN DAN DESA
+                const key = kecVal + "|" + item;
+                const status = dataSudahIsi.includes(key) ? "✅ " : "❌ ";
                 d.innerHTML += `<option value="${item}">${status}${item}</option>`;
             });
             d.disabled = list.length === 0;
         };
 
-        // Logika Ambil Data Sebelumnya
         document.getElementById('desa').onchange = function() {
             const desaSelected = this.value;
+            const kecSelected = document.getElementById('kecamatan').value;
+            const key = kecSelected + "|" + desaSelected;
             hasPreviousFile = {}; 
 
-            if(dataSudahIsi.includes(desaSelected)) {
+            if(dataSudahIsi.includes(key)) {
                 document.getElementById('loadingInfo').classList.remove('hidden');
-                fetch(`${scriptURL}?action=getOldData&desa=${desaSelected}`)
+                fetch(`${scriptURL}?action=getOldData&desa=${desaSelected}&kecamatan=${kecSelected}`)
                 .then(res => res.json())
                 .then(oldData => {
                     for(let i=1; i<=16; i++) {
@@ -206,7 +208,6 @@
                     alert("Data sebelumnya berhasil dimuat.");
                 });
             } else {
-                // Bersihkan form jawaban saja
                 const allRadios = document.querySelectorAll('input[type="radio"]');
                 allRadios.forEach(radio => radio.checked = false);
                 const allFiles = document.querySelectorAll('input[type="file"]');
@@ -234,7 +235,6 @@
                 dataObj['p'+i] = val;
                 const f = document.getElementById('f'+i);
                 
-                // VALIDASI: Wajib upload jika Ya (kecuali data lama sudah ada filenya)
                 if(val === "Ya") {
                     if(f.files.length === 0 && !hasPreviousFile[i]) {
                         alert(`Pertanyaan nomor ${i} dijawab "Ya", mohon upload bukti berkas terlebih dahulu!`);
